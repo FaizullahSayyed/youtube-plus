@@ -1,4 +1,7 @@
 const authMiddleware = require('./middleware/auth');
+const handleSubscribe = require('./handlers/subscribe');
+const handleLike = require('./handlers/like');
+const handleComment = require('./handlers/comment');
 
 function initSocket(io) {
   // Apply authentication middleware
@@ -28,6 +31,15 @@ function initSocket(io) {
       socket.leave(`video:${videoId}`);
       console.log(`👋 User ${socket.user.username} left video:${videoId}`);
     });
+
+    // Attach real-time event handlers
+    handleSubscribe(io, socket);
+    handleLike(io, socket);
+    console.log(`Like handler attached for ${socket.user.username}`);
+    handleComment(io, socket);
+
+    // Handle socket errors
+    socket.on('error', (err) => console.error('Socket error from client:', err));
 
     // Handle disconnect
     socket.on('disconnect', () => {

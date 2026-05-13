@@ -51,7 +51,7 @@ connectBtn.addEventListener('click', () => {
   });
 
   socket.on('error', (error) => {
-    log(`Socket error: ${error}`);
+    log(`Error: ${JSON.stringify(error)}`);
   });
 
   socket.on('message', (payload) => {
