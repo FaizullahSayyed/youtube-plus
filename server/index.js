@@ -9,7 +9,13 @@ const { pool, testConnection } = require('./config/db');
 const { redisClient, connectRedis } = require('./config/redis');
 
 const authRoutes = require('./routes/auth');
+const channelRoutes = require('./routes/channels');
+const videoRoutes = require('./routes/videos');
+const subscriptionRoutes = require('./routes/subscriptions');
+const likeRoutes = require('./routes/likes');
+const commentRoutes = require('./routes/comments');
 
+const initSocket = require('./socket/index');
 
 const app = express();
 
@@ -17,7 +23,13 @@ const app = express();
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_URL }));
 app.use(express.json());
+app.use(express.static('server/public'));
 app.use('/api/auth', authRoutes);
+app.use('/api/channels', channelRoutes);
+app.use('/api/videos', videoRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/likes', likeRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Create HTTP server and Socket.IO instance
 const server = http.createServer(app);
@@ -27,6 +39,9 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 });
+
+// Initialize Socket.IO with authentication and event handlers
+initSocket(io);
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -71,3 +86,4 @@ process.on('SIGTERM', async () => {
 });
 
 module.exports = { app, server, io };
+
